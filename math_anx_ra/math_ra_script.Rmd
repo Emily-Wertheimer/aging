@@ -16,8 +16,22 @@ library("readxl")
 
 
 ```
-load data
+load and clean data
 ```{r}
 assessments <- read.csv('aging_assessments.csv')
+ra_mon <- read.csv('ra_mon_alphas.csv')
+
+# rename cols
+colnames(assessments)[1] <- "study.ID"
+colnames(assessments)[2] <- "lab.ID"
+
+# remove "AG_" before sub num (1st col of assessments)
+assessments$study.ID <- gsub("^.{0,3}", "", assessments$study.ID)
+
+```
+
+correlation b/w risk attitude, ambig attitude, math anxiety, math ability
+```{r}
+
 ```
 
