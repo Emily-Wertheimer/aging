@@ -16,19 +16,37 @@ library("readxl")
 
 
 ```
-load and clean data
+load and preprocess
 ```{r}
-assessments <- read.csv('aging_assessments.csv')
-ra_mon <- read.csv('ra_mon_alphas.csv')
+# # load
+# assessments <- read.csv('aging_assessments.csv')
+# ra_mon <- read.csv('ra_mon_alphas.csv')
+# 
+# # rename cols
+# colnames(assessments)[1] <- "study.ID"
+# colnames(assessments)[2] <- "lab.ID"
+# 
+# # remove "AG_" before sub num (1st col of assessments)
+# assessments$study.ID <- gsub("^.{0,3}", "", assessments$study.ID)
 
-# rename cols
-colnames(assessments)[1] <- "study.ID"
-colnames(assessments)[2] <- "lab.ID"
+# use only subs for whom we have assessments and alphas
+assess.use <- read.csv('aging_assessments_use.csv')
+alphas.use <- read.csv('mon_alphas_use.csv') 
 
-# remove "AG_" before sub num (1st col of assessments)
-assessments$study.ID <- gsub("^.{0,3}", "", assessments$study.ID)
+# check colnames
+colnames(assess.use)
+colnames(assess.use)[1] <- "study.ID"
+colnames(assess.use)[2] <- "lab.ID"
+
+colnames(alphas.use)
+colnames(alphas.use)[1] <- "study.ID"
+colnames(alphas.use)[2] <- "nSubs"
+
+
+data.all <- cbind(assess.use, alphas.use)
 
 ```
+
 
 correlation b/w risk attitude, ambig attitude, math anxiety, math ability
 ```{r}
