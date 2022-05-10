@@ -4,9 +4,20 @@ output: html_notebook
 ---
 
 
+## PREPROCESSING
 
+load libraries
 ```{r}
-plot(cars)
-```
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+install.packages("readxl")
+library("readxl")
 
+
+```
+load data
+```{r}
+assessments <- read.csv('aging_assessments.csv')
+```
 
