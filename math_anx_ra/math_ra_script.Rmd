@@ -8,30 +8,26 @@ output: html_notebook
 
 load libraries
 ```{r}
+install.packages("readxl")
+install.packages("corrplot")
+
 library(ggplot2)
 library(tidyverse)
 library(dplyr)
-install.packages("readxl")
 library("readxl")
+library(corrplot)
+
 
 
 ```
 load and preprocess
 ```{r}
-# # load
-# assessments <- read.csv('aging_assessments.csv')
-# ra_mon <- read.csv('ra_mon_alphas.csv')
-# 
-# # rename cols
-# colnames(assessments)[1] <- "study.ID"
-# colnames(assessments)[2] <- "lab.ID"
-# 
-# # remove "AG_" before sub num (1st col of assessments)
-# assessments$study.ID <- gsub("^.{0,3}", "", assessments$study.ID)
+## load
 
 # use only subs for whom we have assessments and alphas
 assess.use <- read.csv('aging_assessments_use.csv')
 alphas.use <- read.csv('mon_alphas_use.csv') 
+mars.use <- read.csv('MARS_clean_use.csv')
 
 # check colnames
 colnames(assess.use)
@@ -42,6 +38,9 @@ colnames(alphas.use)
 colnames(alphas.use)[1] <- "study.ID"
 colnames(alphas.use)[2] <- "nSubs"
 
+# add mars composite score to assess.use
+assess.use$MARS_score <- mars.use$Score
+
 
 data.all <- cbind(assess.use, alphas.use)
 
@@ -50,6 +49,39 @@ data.all <- cbind(assess.use, alphas.use)
 
 correlation b/w risk attitude, ambig attitude, math anxiety, math ability
 ```{r}
+# select only relevant (and numeric) cols
+selected_cols <- c('study.ID', 'WJ_1_correct', 'WJ_2_correct', 'num_score', 'moca_score', 'ravens_ability_score', 'ravens_standard_score', 'Age', 'Male', 'alpha_pymc', 'beta_pymc', 'gamma_pymc', 'MARS_score')
+
+# new df
+cols_use <- names(data.all)[(names(data.all) %in% selected_cols)]
+data.all_use <- data.all[, cols_use]
+
+data.all_use$ravens_standard_score[13] <- 107 # replace invalid entry w/ correct score 
+
+# coerce to numeric
+data.all_use$study.ID <- as.numeric(as.character(data.all_use$study.ID))
+data.all_use$num_score <- as.numeric(as.character(data.all_use$num_score))
+data.all_use$WJ_1_correct <- as.numeric(as.character(data.all_use$WJ_1_correct))
+data.all_use$WJ_2_correct <- as.numeric(as.character(data.all_use$WJ_2_correct))
+data.all_use$ravens_ability_score <- as.numeric(as.character(data.all_use$ravens_ability_score))
+data.all_use$ravens_standard_score <- as.numeric(as.character(data.all_use$ravens_standard_score))
+data.all_use$Age <- as.numeric(as.character(data.all_use$Age))
+data.all_use$alpha_pymc <- as.numeric(as.character(data.all_use$alpha_pymc))
+data.all_use$beta_pymc <- as.numeric(as.character(data.all_use$beta_pymc))
+data.all_use$gamma_pymc <- as.numeric(as.character(data.all_use$gamma_pymc))
+data.all_use$MARS_score <- as.numeric(as.character(data.all_use$MARS_score))
+
+# plots
+corr.all <- cor(data.all_use, use = "pairwise.complete.obs", method = "pearson")
+plot <- corrplot(corr.all, method = 'number', type = 'upper')
+
+# test if corr coefficients are significant
 
 ```
+
+```{r}
+write.csv(data.all_use,"C:/Users/ekw28/ekw_lab_projects/aging/math_anx_ra\\surveyScoresAndParameters_mon.csv", row.names = FALSE)
+
+```
+
 
