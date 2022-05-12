@@ -41,8 +41,71 @@ colnames(alphas.use)[2] <- "nSubs"
 # add mars composite score to assess.use
 assess.use$MARS_score <- mars.use$Score
 
+## bis bas
+bisBas.use <- read.csv('lifespan_bisBas_dospert_raw.csv')
 
-data.all <- cbind(assess.use, alphas.use)
+#recode values: 1 = very false, 2 = somewhat false, 3 = somewhat true, 4 = very true, 5 = skip
+bisBas.use[bisBas.use == "Very False"] <- 1
+bisBas.use[bisBas.use == "Somewhat False"] <- 2
+bisBas.use[bisBas.use == "Somewhat True"] <- 3
+bisBas.use[bisBas.use =="Very True"] <- 4
+bisBas.use[bisBas.use == "Choose not to answer"] <- 5
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 5
+
+
+#recode values: 1 = rarely/never, 2 = occasionally, 3 = often, 4 = almost always, 5 = skip
+bisBas.use[bisBas.use == "Rarely / Never"] <- 1
+bisBas.use[bisBas.use == "Occasionally"] <- 2
+bisBas.use[bisBas.use == "Often"] <- 3
+bisBas.use[bisBas.use == "Almost Always"] <- 4
+bisBas.use[bisBas.use == "Choose not to answer"] <- 5
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 5
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 5
+
+
+#recode values: 1 = extremely unlikely, 2 = moderately unlikely, 3 = somewhat unlikely, 4 = not sure, 5 = somewhat likely, 6= moderately likely, 7 = extremely likely, 8 = skip
+bisBas.use[bisBas.use == "Extremely Unlikely"] <- 1
+bisBas.use[bisBas.use == "Moderately Unlikely"] <- 2
+bisBas.use[bisBas.use == "Somewhat Unlikely"] <- 3
+bisBas.use[bisBas.use == "Not Sure"] <- 4
+bisBas.use[bisBas.use == "Somewhat Likely"] <- 5
+bisBas.use[bisBas.use == "Moderately Likely"] <- 6
+bisBas.use[bisBas.use == "Extremely Likely"] <- 7
+bisBas.use[bisBas.use == "Choose not to answer"] <- 8
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
+
+
+#recode values: 1 = not at all risky, 2 = slightly risky, 3 = somewhat risky, 4 = moderately risky, 5 =  risky, 6= very risky, 7 = extremely risky, 8 = skip
+bisBas.use[bisBas.use == "Not at all Risky"] <- 1
+bisBas.use[bisBas.use == "Slightly Risky"] <- 2
+bisBas.use[bisBas.use == "Somewhat Risky"] <- 3
+bisBas.use[bisBas.use == "Moderately Risky"] <- 4
+bisBas.use[bisBas.use == "Risky"] <- 5
+bisBas.use[bisBas.use == "Very Risky"] <- 6
+bisBas.use[bisBas.use == "Extremely Risky"] <- 7
+bisBas.use[bisBas.use == "Choose not to answer"] <- 8
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
+
+#recode values: 1 = no benefits at all, 2, 3, 4 = moderate benefits, 5, 6, 7 = great benefits, 8 = skip
+bisBas.use[bisBas.use == "1No benefits At all"] <- 1
+bisBas.use[bisBas.use == "4Moderate Benefits"] <- 4
+bisBas.use[bisBas.use == "7Great Benefits"] <- 7
+bisBas.use[bisBas.use == "Choose not to answer"] <- 8
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
+
+# write clean use bis bas
+
+
+
+#make composite score, add col to assess.use
+assess.use$bisBas_score <- bisBas.use$score 
+
+
+
+data.all <- cbind(assess.use, alphas.use, bisBas.use)
 
 ```
 
@@ -76,11 +139,105 @@ corr.all <- cor(data.all_use, use = "pairwise.complete.obs", method = "pearson")
 plot <- corrplot(corr.all, method = 'number', type = 'upper')
 
 # test if corr coefficients are significant
+cor.test(data.all_use$alpha_pymc, data.all_use$num_score)
+cor.test(data.all_use$alpha_pymc, data.all_use$moca_score)
+cor.test(data.all_use$alpha_pymc, data.all_use$MARS_score)
+cor.test(data.all_use$alpha_pymc, data.all_use$Age)
+cor.test(data.all_use$alpha_pymc, data.all_use$Male)
+cor.test(data.all_use$alpha_pymc, data.all_use$WJ_1_correct)
+cor.test(data.all_use$alpha_pymc, data.all_use$WJ_2_correct)
+cor.test(data.all_use$alpha_pymc, data.all_use$ravens_ability_score)
+cor.test(data.all_use$alpha_pymc, data.all_use$ravens_standard_score)
+
+cor.test(data.all_use$beta_pymc, data.all_use$num_score)
+cor.test(data.all_use$beta_pymc, data.all_use$moca_score)
+cor.test(data.all_use$beta_pymc, data.all_use$MARS_score)
+cor.test(data.all_use$beta_pymc, data.all_use$Age)
+cor.test(data.all_use$beta_pymc, data.all_use$Male)
+cor.test(data.all_use$beta_pymc, data.all_use$WJ_1_correct)
+cor.test(data.all_use$beta_pymc, data.all_use$WJ_2_correct)
+cor.test(data.all_use$beta_pymc, data.all_use$ravens_ability_score)
+cor.test(data.all_use$beta_pymc, data.all_use$ravens_standard_score)
+
+cor.test(data.all_use$gamma_pymc, data.all_use$num_score)
+cor.test(data.all_use$gamma_pymc, data.all_use$moca_score)
+cor.test(data.all_use$gamma_pymc, data.all_use$MARS_score)
+cor.test(data.all_use$gamma_pymc, data.all_use$Age)
+cor.test(data.all_use$gamma_pymc, data.all_use$Male)
+cor.test(data.all_use$gamma_pymc, data.all_use$WJ_1_correct)
+cor.test(data.all_use$gamma_pymc, data.all_use$WJ_2_correct)
+cor.test(data.all_use$gamma_pymc, data.all_use$ravens_ability_score)
+cor.test(data.all_use$gamma_pymc, data.all_use$ravens_standard_score)
+
+
+
+
+
 
 ```
-
+retest after excluding those with ineligible moca scores
 ```{r}
-write.csv(data.all_use,"C:/Users/ekw28/ekw_lab_projects/aging/math_anx_ra\\surveyScoresAndParameters_mon.csv", row.names = FALSE)
+## exclude moca scores <= 25
+data.all_excludeMOCA <- subset(data.all_use, moca_score >= 26)
+nrow(data.all_excludeMOCA)#37
+
+## redo correlations
+
+# plots
+corr.all_excludeMOCA <- cor(data.all_excludeMOCA, use = "pairwise.complete.obs", method = "pearson")
+plot_excludeMOCA <- corrplot(corr.all_excludeMOCA, method = 'number', type = 'upper')
+
+# test if corr coefficients are significant
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$num_score)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$moca_score)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$MARS_score)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$Age)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$Male)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$WJ_1_correct)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$WJ_2_correct)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$ravens_ability_score)
+cor.test(data.all_excludeMOCA$alpha_pymc, data.all_excludeMOCA$ravens_standard_score)
+
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$num_score)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$moca_score)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$MARS_score)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$Age)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$Male)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$WJ_1_correct)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$WJ_2_correct)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$ravens_ability_score)
+cor.test(data.all_excludeMOCA$beta_pymc, data.all_excludeMOCA$ravens_standard_score)
+
+
+
+```
+linear models with sig regressors
+```{r}
+# with both sexes included
+lm_mf <- lm(data.all_excludeMOCA$alpha_pymc ~ data.all_excludeMOCA$Age + data.all_excludeMOCA$Male + data.all_excludeMOCA$num_score + data.all_excludeMOCA$WJ_2_correct + data.all_excludeMOCA$MARS_score)
+summary(lm_mf)
+
+# males only
+data.all_excludeMOCA_M <- subset(data.all_use, Male == 1)
+lm_m <- lm(data.all_excludeMOCA_M$alpha_pymc ~ data.all_excludeMOCA_M$Age + data.all_excludeMOCA_M$num_score + data.all_excludeMOCA_M$WJ_2_correct + data.all_excludeMOCA_M$MARS_score)
+summary(lm_m)
+
+# females only
+data.all_excludeMOCA_F <- subset(data.all_use, Male == 0)
+lm_f <- lm(data.all_excludeMOCA_F$alpha_pymc ~ data.all_excludeMOCA_F$Age + data.all_excludeMOCA_F$num_score + data.all_excludeMOCA_F$MARS_score +data.all_excludeMOCA_F$WJ_2_correct)
+summary(lm_f)
+```
+model comparison
+```{r}
+# both sexes
+AIC(lm_mf) #-12.37816
+BIC(lm_mf) #-4.323575
+
+AIC(lm_m) #-11.46131
+BIC(lm_m) #-7.097138
+
+AIC(lm_f) #-3.547625
+BIC(lm_f) #1.484761
 
 ```
 
