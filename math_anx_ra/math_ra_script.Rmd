@@ -21,27 +21,9 @@ library(corrplot)
 
 ```
 load and preprocess
+
 ```{r}
-## load
-
-# use only subs for whom we have assessments and alphas
-assess.use <- read.csv('aging_assessments_use.csv')
-alphas.use <- read.csv('mon_alphas_use.csv') 
-mars.use <- read.csv('MARS_clean_use.csv')
-
-# check colnames
-colnames(assess.use)
-colnames(assess.use)[1] <- "study.ID"
-colnames(assess.use)[2] <- "lab.ID"
-
-colnames(alphas.use)
-colnames(alphas.use)[1] <- "study.ID"
-colnames(alphas.use)[2] <- "nSubs"
-
-# add mars composite score to assess.use
-assess.use$MARS_score <- mars.use$Score
-
-## bis bas
+## bis bas/dospert
 bisBas.use <- read.csv('lifespan_bisBas_dospert_raw.csv')
 
 #recode values: 1 = very false, 2 = somewhat false, 3 = somewhat true, 4 = very true, 5 = skip
@@ -96,16 +78,55 @@ bisBas.use[bisBas.use == "Choose not to answer"] <- 8
 bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
 bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
 
-# write clean use bis bas
+# # write csv
+# write.csv(bisBas.use, "C:/Users/ekw28/ekw_lab_projects/aging/math_anx_ra\\bisBas.clean.recode.csv", row.names = FALSE)
+
+#import csv with scores for e/ subtest 
+bisBas_noEB <- read.csv('bisBasDospertCleanWithScores_noEB.csv', header = TRUE)
+
+#label score col
+colnames(bisBas_noEB)[26] <-  "bis.bas.score"
+colnames(bisBas_noEB)[57] <-  "bis.11.score"
+colnames(bisBas_noEB)[88] <-  "dospert.rt.score"
+colnames(bisBas_noEB)[119] <-  "dospert.rp.score"
+
+
+```
+
+
+```{r}
+## load
+
+# use only subs for whom we have assessments and alphas
+assess.use <- read.csv('aging_assessments_use.csv')
+alphas.use <- read.csv('mon_alphas_use.csv') 
+mars.use <- read.csv('MARS_clean_use.csv')
+
+# check colnames
+colnames(assess.use)
+colnames(assess.use)[1] <- "study.ID"
+colnames(assess.use)[2] <- "lab.ID"
+
+colnames(alphas.use)
+colnames(alphas.use)[1] <- "study.ID"
+colnames(alphas.use)[2] <- "nSubs"
+
+# add mars, bis bas composite scores to assess.use
+assess.use$MARS_score <- mars.use$Score
+
+####STOPPED HERE#######
+
+assess.use$bisBas_score <- bisBas_noEB$bis.bas.score
+assess.use$bisEleven_score <- bisBas_noEB$bis.11.score
+assess.use$dospertRT_score <- bisBas_noEB$dospert.rt.score
+assess.use$dospertRP_score <- bisBas_noEB$dospert.rp.score
+
+colnames(assess.use)
 
 
 
-#make composite score, add col to assess.use
-assess.use$bisBas_score <- bisBas.use$score 
-
-
-
-data.all <- cbind(assess.use, alphas.use, bisBas.use)
+# combine into 1 df
+data.all <- cbind(assess.use, alphas.use) # why isn't bis 
 
 ```
 
