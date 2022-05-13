@@ -1,0 +1,139 @@
+---
+title: "aging: math anx and RA attitudes MEDICAL"
+output: html_notebook
+---
+## PREPROCESSING
+
+load libraries
+```{r}
+install.packages("readxl")
+install.packages("corrplot")
+
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library("readxl")
+library(corrplot)
+
+
+
+```
+
+load and preprocess
+```{r}
+propRisky_med <- read.csv('propRisky_med.csv')
+
+## select participants
+bisBas <- read.csv('bisBasDospert_raw_UseMed.csv')
+assess <- read.csv('aging_assessments_raw_useMed.csv')
+mars <- read.csv('MARS_raw_useMed.csv')
+
+
+
+# check colnames
+colnames(assess)[1] <- "study.ID"
+colnames(assess)[2] <- "lab.ID"
+colnames(mars)[1] <- 'study.ID'
+colnames(propRisky_med)[2] <- "study.ID"
+colnames(bisBas)[1] <- 'study.ID'
+
+# remove extra row
+bisBas <- bisBas[-(1), ]
+
+#only use participants who completed everything
+bisBas.use <- bisBas %>%
+  filter(study.ID %in% propRisky_med$study.ID & study.ID %in% assess$study.ID & study.ID %in% mars$study.ID)
+mars.use <- mars %>%  filter(study.ID %in% propRisky_med$study.ID & study.ID %in% assess$study.ID & study.ID %in% bisBas$study.ID)
+assess.use <- assess %>% filter(study.ID %in% propRisky_med$study.ID & study.ID %in% mars$study.ID & study.ID %in% bisBas$study.ID)
+propRisky_med.use <- propRisky_med %>% filter(study.ID %in% assess$study.ID & study.ID %in% mars$study.ID & study.ID %in% bisBas$study.ID)
+
+
+#recode values: 1 = very false, 2 = somewhat false, 3 = somewhat true, 4 = very true, 5 = skip
+bisBas.use[bisBas.use == "Very False"] <- 1
+bisBas.use[bisBas.use == "Somewhat False"] <- 2
+bisBas.use[bisBas.use == "Somewhat True"] <- 3
+bisBas.use[bisBas.use =="Very True"] <- 4
+bisBas.use[bisBas.use == "Choose not to answer"] <- 5
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 5
+
+
+#recode values: 1 = rarely/never, 2 = occasionally, 3 = often, 4 = almost always, 5 = skip
+bisBas.use[bisBas.use == "Rarely / Never"] <- 1
+bisBas.use[bisBas.use == "Occasionally"] <- 2
+bisBas.use[bisBas.use == "Often"] <- 3
+bisBas.use[bisBas.use == "Almost Always"] <- 4
+bisBas.use[bisBas.use == "Choose not to answer"] <- 5
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 5
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 5
+
+
+#recode values: 1 = extremely unlikely, 2 = moderately unlikely, 3 = somewhat unlikely, 4 = not sure, 5 = somewhat likely, 6= moderately likely, 7 = extremely likely, 8 = skip
+bisBas.use[bisBas.use == "Extremely Unlikely"] <- 1
+bisBas.use[bisBas.use == "Moderately Unlikely"] <- 2
+bisBas.use[bisBas.use == "Somewhat Unlikely"] <- 3
+bisBas.use[bisBas.use == "Not Sure"] <- 4
+bisBas.use[bisBas.use == "Somewhat Likely"] <- 5
+bisBas.use[bisBas.use == "Moderately Likely"] <- 6
+bisBas.use[bisBas.use == "Extremely Likely"] <- 7
+bisBas.use[bisBas.use == "Choose not to answer"] <- 8
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
+
+
+#recode values: 1 = not at all risky, 2 = slightly risky, 3 = somewhat risky, 4 = moderately risky, 5 =  risky, 6= very risky, 7 = extremely risky, 8 = skip
+bisBas.use[bisBas.use == "Not at all Risky"] <- 1
+bisBas.use[bisBas.use == "Slightly Risky"] <- 2
+bisBas.use[bisBas.use == "Somewhat Risky"] <- 3
+bisBas.use[bisBas.use == "Moderately Risky"] <- 4
+bisBas.use[bisBas.use == "Risky"] <- 5
+bisBas.use[bisBas.use == "Very Risky"] <- 6
+bisBas.use[bisBas.use == "Extremely Risky"] <- 7
+bisBas.use[bisBas.use == "Choose not to answer"] <- 8
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
+
+#recode values: 1 = no benefits at all, 2, 3, 4 = moderate benefits, 5, 6, 7 = great benefits, 8 = skip
+bisBas.use[bisBas.use == "1No benefits At all"] <- 1
+bisBas.use[bisBas.use == "4Moderate Benefits"] <- 4
+bisBas.use[bisBas.use == "7Great Benefits"] <- 7
+bisBas.use[bisBas.use == "Choose not to answer"] <- 8
+bisBas.use[bisBas.use == "Choose Not to Answer"] <- 8
+bisBas.use[bisBas.use == "Choose not to Answer"] <- 8
+
+# remove eb
+bisBas.use <- bisBas.use[-c(116:145)]
+
+# add scores 
+assess.use$score <- NA
+bisBas.use$score <- NA
+mars.use$score <- NA
+
+
+#label score col
+colnames(bisBas_noEB)[26] <-  "bis.bas.score"
+colnames(bisBas_noEB)[57] <-  "bis.11.score"
+colnames(bisBas_noEB)[88] <-  "dospert.rt.score"
+colnames(bisBas_noEB)[119] <-  "dospert.rp.score"
+
+
+```
+
+
+```{r}
+# add mars, bis bas composite scores to assess.use
+assess.use$MARS_score <- mars.use$Score
+
+
+# bis bas 
+assess.use$bisBas_score <- bisBas_noEB$bis.bas.score
+assess.use$bisEleven_score <- bisBas_noEB$bis.11.score
+assess.use$dospertRT_score <- bisBas_noEB$dospert.rt.score
+assess.use$dospertRP_score <- bisBas_noEB$dospert.rp.score
+
+# combine into 1 df
+data.all <- cbind(assess.use, propRisky_med) 
+
+
+
+```
+
