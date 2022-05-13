@@ -123,6 +123,7 @@ data.all <- cbind(assess.use, alphas.use)
 
 ```
 
+## ANALYSIS
 
 correlation b/w risk attitude, ambig attitude, math anxiety, math ability
 ```{r}
